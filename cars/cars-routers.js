@@ -41,15 +41,46 @@ router.post("/", validateCarData(), isVinNumUnique(), async (req, res, next) => 
     } catch(err) {
          next(err)
     }
+
 })
 
 
+// Update Car Info
+router.put("/:id", validateCarData(), validateCarID(), isVinNumUnique(), async (req, res, next) => {
+     
+   try {
+         const payload = {
+            vin: req.body.vin,
+            make: req.body.make,
+            model: req.body.model,
+            mileage: req.body.mileage,
+            transmission_type: req.body.transmission_type,
+            title: req.body.title
+         } 
+
+         const flag = await db("cars").update(payload).where("id",req.params.id)
+         const car   = await db("cars").where("id",req.params.id).first()
+         res.status(200).json(car)
+          
+
+   } catch(err) {
+        next(err)
+   }
+
+})
 
 
+// Delete Car
+router.delete("/:id",  validateCarID(), async (req, res, next) => {
 
+   try {
+         await db("cars").where("id",req.params.id).del()
+         res.status(204).end()  // may be we can use 202 code as well we dont want to sent any message/response in this case 
+   } catch(err) {
+        next(err)
+   }
 
-
-
+})
 
 
 module.exports =  router

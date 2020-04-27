@@ -1,4 +1,5 @@
 const db = require("../data/config")
+
 module.exports = {
 
     validateCarID: () => { 
@@ -39,20 +40,16 @@ module.exports = {
    },
 
    isVinNumUnique: () =>  {
-      
+
       return async (req, res, next) => {
           try {  
                 const carID = req.params.id
-                let car = '';
+                const carQry = db("cars").where("vin", req.body.vin)
                 if(carID) {
-                    car = await db("cars").where("vin", req.body.vin).whereNot("id",carID).first()  // in case of update
-   
-                } else {
-                    car = await db("cars").where("vin", req.body.vin).first()  // in case of insert
-   
-                }      
-                            
-                if(car) {
+                  carQry.whereNot("id",carID)  // in case of update   
+                } 
+                
+                if(await carQry.first()) {
                     res.status(404).json({message: "VIN number alreday exist"})           
                 } else {
                     next()          
@@ -65,5 +62,6 @@ module.exports = {
    
       }
    }
+   
 
 }
